@@ -1,9 +1,10 @@
-float inverse_gaussian(float x) {
-  return -1.0f/pow(2.0f, (0.6f*pow(x, 2.0f)))+1.0f;
+float gaussian(float x, float b) {
+  return 1.0f/pow(2.0f, (pow(x-b, 2.0f)));
 }
+
 float activation(float x) {
-  return inverse_gaussian(x);
-}		
+  return gaussian(x, 3.5f);
+}	
 __kernel void perform_step(__global float *cells, __global float *tempCells, __global unsigned char *pixels,
  __global float *mat,
  int rows, int cols)
@@ -24,10 +25,11 @@ __kernel void perform_step(__global float *cells, __global float *tempCells, __g
         }
     }
     wsum = activation(wsum);
-    tempCells[col + row * cols] = clamp(wsum, -1.0f, 1.0f);
+    wsum = clamp(wsum, 0.0f, 1.0f);
+    tempCells[col + row * cols] = wsum;
     unsigned char color = (unsigned char) 255 * wsum;
     pixels[(col + row * cols) * 4]     = color;
-    pixels[(col + row * cols) * 4 + 1] = 0;
+    pixels[(col + row * cols) * 4 + 1] = color;
     pixels[(col + row * cols) * 4 + 2] = 0;
     pixels[(col + row * cols) * 4 + 3] = color;
 }

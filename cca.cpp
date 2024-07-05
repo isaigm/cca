@@ -4,6 +4,7 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 #include <chrono>
+
 #define COLS 1920
 #define ROWS 1080
 using CellType = float;
@@ -23,9 +24,9 @@ cl::Program buildProgram(cl::Context &context, cl::Device &device, std::string p
 {
     cl::Program::Sources sources;
     std::string sourceCode = loadKernelFromFile(path);
-    sources.push_back({sourceCode.c_str(), sourceCode.length()});
+    sources.push_back({ sourceCode.c_str(), sourceCode.length() });
     cl::Program program(context, sources);
-    if (program.build({device}) != CL_SUCCESS)
+    if (program.build({ device }) != CL_SUCCESS)
     {
         std::cout << "error:" << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << "\n";
         throw std::exception("Compiling error");
@@ -37,11 +38,11 @@ float random(float min, float max)
     float r = float(rand()) / float(RAND_MAX);
     return r * (max - min) + min;
 }
-void randomize(CellType *cells)
+void randomize(CellType* cells)
 {
     for (int i = 0; i < ROWS * COLS; i++)
     {
-        cells[i] = random(-1.0f, 1.0f);
+        cells[i] = random(0.0f, 1.0f);
     }
 }
 int main()
@@ -66,39 +67,41 @@ int main()
         std::cout << "No devices found\n";
         return 1;
     }
-    float kernel[9] = {0.68, -0.9, 0.68,
-                       -0.9, -0.66, -0.9,
-                       0.68, -0.9, 0.68};
+    float kernel[9] = {0,1, 0,
+                      1, 1, 1,
+                      0, 1, 0 };
     cl::Device device = devices[0];
 
     std::cout << device.getInfo<CL_DEVICE_NAME>() << "\n";
-    cl::Context context({device});
+    cl::Context context({ device });
     cl::CommandQueue queue(context, device);
 
-    auto psProgram = buildProgram(context, device, "perform_step.cl");
+
+    auto psProgram = buildProgram(context, device,
+        "C:\\Users\\isaig\\examples\\opencl\\perform_step.cl");
 
     unsigned int rows = ROWS;
     unsigned int cols = COLS;
     size_t sizeInBytes = ROWS * COLS * sizeof(CellType);
-    CellType *hostCells;
-    CellType *tempHostCells;
-    hostCells = new CellType[rows * cols];
+    CellType* hostCells;
+    CellType* tempHostCells;
+    hostCells     = new CellType[rows * cols];
     tempHostCells = new CellType[rows * cols];
     randomize(hostCells);
     std::memcpy(tempHostCells, hostCells, sizeInBytes);
-    cl::Buffer deviceCells(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeInBytes, hostCells);
+    cl::Buffer deviceCells(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeInBytes, hostCells);
     cl::Buffer deviceTempCells(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeInBytes, hostCells);
     cl::Kernel psKernel(psProgram, "perform_step");
     sf::Texture texture;
     sf::Sprite sprite;
     texture.create(COLS, ROWS);
     sprite.setTexture(texture);
-    sf::Uint8 *pixels = new sf::Uint8[ROWS * COLS * 4];
+    sf::Uint8* pixels = new sf::Uint8[ROWS * COLS * 4];
     texture.update(pixels);
 
     cl::Buffer devicePixels(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 4 * sizeof(sf::Uint8) * rows * cols, pixels);
-    cl::Buffer deviceKernel(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(kernel), kernel);
-    psKernel.setArg(1, deviceTempCells);
+    cl::Buffer deviceKernel(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(kernel), kernel);
+    psKernel.setArg(1, deviceTempCells);    
     psKernel.setArg(2, devicePixels);
     psKernel.setArg(3, deviceKernel);
     psKernel.setArg(4, rows);
@@ -131,19 +134,20 @@ int main()
                     kernel[2] = r1;
                     kernel[6] = r1;
                     kernel[8] = r1;
-
+                    
                     kernel[4] = r2;
-
+                    
                     kernel[1] = r3;
                     kernel[5] = r3;
                     kernel[7] = r3;
                     kernel[3] = r3;
                     randomize(hostCells);
                     std::memcpy(tempHostCells, hostCells, sizeInBytes);
-
+                    
                     queue.enqueueWriteBuffer(deviceCells, CL_TRUE, 0, sizeInBytes, hostCells);
                     queue.enqueueWriteBuffer(deviceTempCells, CL_TRUE, 0, sizeInBytes, tempHostCells);
                     queue.enqueueWriteBuffer(deviceKernel, CL_TRUE, 0, sizeof(kernel), kernel);
+
                 }
             }
         }
@@ -180,5 +184,8 @@ int main()
         window.setView(window.getDefaultView());
         window.display();
     }
+    delete[] hostCells;
+    delete[] tempHostCells;
+    delete[] pixels;
     return 0;
 }
