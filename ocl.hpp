@@ -17,16 +17,14 @@ namespace ocl
         }
         throw std::exception("error at opening file");
     }
-    cl::Program buildProgram(cl::Context& context, cl::Device& device, std::string path)
+    cl::Program buildProgram(cl::Context& context, cl::Device& device, std::string &sourceCode)
     {
         cl::Program::Sources sources;
-        std::string sourceCode = loadKernelFromFile(path);
         sources.push_back({ sourceCode.c_str(), sourceCode.length() });
         cl::Program program(context, sources);
         if (program.build({ device }) != CL_SUCCESS)
         {
-            std::cerr << "error:" << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << "\n";
-            throw std::exception("Compiling error");
+            throw std::exception(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device).c_str());
         }
         return program;
     }
