@@ -1,12 +1,5 @@
-float gaussian(float x, float b) {
-  return 1.0f/pow(2.0f, (pow(x-b, 2.0f)));
-}
-
-float activation(float x) {
-  return gaussian(x, 3.5f);
-}	
 __kernel void perform_step(__global float *cells, __global float *tempCells, __global unsigned char *pixels,
- __global float *mat,
+ __global float *mat, __global float *color,
  int rows, int cols)
 {
     int row = get_global_id(0);
@@ -27,9 +20,9 @@ __kernel void perform_step(__global float *cells, __global float *tempCells, __g
     wsum = activation(wsum);
     wsum = clamp(wsum, 0.0f, 1.0f);
     tempCells[col + row * cols] = wsum;
-    unsigned char color = (unsigned char) 255 * wsum;
-    pixels[(col + row * cols) * 4]     = color;
-    pixels[(col + row * cols) * 4 + 1] = color;
-    pixels[(col + row * cols) * 4 + 2] = 0;
-    pixels[(col + row * cols) * 4 + 3] = color;
+    unsigned char val = (unsigned char) 255 * wsum;
+    pixels[(col + row * cols) * 4]     = val * color[0];
+    pixels[(col + row * cols) * 4 + 1] = val * color[1];
+    pixels[(col + row * cols) * 4 + 2] = val * color[2];
+    pixels[(col + row * cols) * 4 + 3] = val;
 }
