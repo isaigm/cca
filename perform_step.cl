@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-//ACTIVATION_FUNCTION
->>>>>>> 8794707de726ab18fb05fa759d78b77d12d1bfb2
 __kernel void perform_step(__global float *cells, __global float *tempCells, __global unsigned char *pixels,
  __global float *mat, __global float *color,
  int rows, int cols)
