@@ -23,8 +23,8 @@ public:
     }
 private:
     const static size_t maxSize = 512;
-    const static int width = 600;
-    const static int height = 256;
+    const static int width      = 512;
+    const static int height     = 128;
     char m_buffer[maxSize];
 };
 

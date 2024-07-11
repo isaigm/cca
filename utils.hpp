@@ -1,13 +1,16 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 #include <vector>
+#include <random>
 namespace utils
 {
+    static std::default_random_engine gen;
+
     template<class T>
     T random(T min, T max)
     {
-        float r = float(rand()) / float(RAND_MAX);
-        return r * (max - min) + min;
+        std::uniform_real_distribution<T> distribution(min, max);
+        return distribution(gen);
     }
     template <class T>
     void randomize(std::vector<T>& vec, T min, T max)
