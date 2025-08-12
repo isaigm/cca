@@ -35,8 +35,8 @@ This project uses CMake and vcpkg for a straightforward and reproducible build p
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/your-repo-name.git
-    cd your-repo-name
+    git clone https://github.com/isaigm/cca/
+    cd cca
     ```
 
 2.  **Install dependencies using vcpkg:**
