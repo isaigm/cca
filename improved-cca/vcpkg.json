@@ -1,0 +1,22 @@
+{
+  "name": "continuous-cellular-automata",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "sfml",
+    "imgui",
+    "imgui-sfml",
+    "opencl"
+  ],
+  "overrides": [
+    {
+      "name": "sfml",
+      "version": "2.5.1",
+      "port-version": 11
+    },
+    {
+      "name": "imgui-sfml",
+      "version": "2.5"
+    }
+  ],
+  "builtin-baseline": "2e34a79a814551424d9b1a981b3b110e0a8fbdfd"
+}
