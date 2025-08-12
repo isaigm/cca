@@ -1,4 +1,5 @@
 # Continuous Cellular Automata (CCA) Explorer
+<img width="600" height="300" alt="cca" src="https://github.com/user-attachments/assets/ab7e60f0-56bd-4eb3-8c6d-cd8eab20bf2e" />
 
 This project is a high-performance implementation of a Continuous Cellular Automata explorer, written in modern C++ and accelerated on the GPU using OpenCL. It is a real-time, interactive laboratory for discovering complex, life-like behaviors that emerge from simple, continuous rules.
 
