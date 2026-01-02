@@ -212,11 +212,11 @@ void CCA::setupSimulation()
 void CCA::runSimulationStep()
 {
     m_clHandler.writeBuffer(m_deviceCells, m_hostCells);
+    m_clHandler.writeBuffer(m_deviceColor, m_color);
     m_clHandler.executeKernel(m_kernel, cl::NDRange(constants::height, constants::width));
     m_clHandler.readBuffer(m_deviceTempCells, m_tempHostCells);
     m_clHandler.readBuffer(m_devicePixels, m_pixels);
     m_clHandler.finishQueue();
-
     utils::copy(m_hostCells, m_tempHostCells);
     m_texture.update(m_pixels.data());
 }
