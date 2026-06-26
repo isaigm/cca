@@ -17,13 +17,27 @@ namespace ocl
         return content;
     }
 
+
     cl::Device getDevice(cl_device_type deviceType)
     {
         std::vector<cl::Platform> platforms;
         cl::Platform::get(&platforms);
         if (platforms.empty())
-        {
             throw std::runtime_error("No OpenCL platform was found");
+
+        for (const auto& platform : platforms)
+        {
+            std::string name = platform.getInfo<CL_PLATFORM_NAME>();
+            if (name.find("NVIDIA") == std::string::npos) continue;
+
+            std::vector<cl::Device> devices;
+            platform.getDevices(deviceType, &devices);
+            if (!devices.empty())
+            {
+                std::cout << "Using device: " << devices[0].getInfo<CL_DEVICE_NAME>() << "\n";
+                std::cout << "On platform: " << name << "\n";
+                return devices[0];
+            }
         }
 
         for (const auto& platform : platforms)
@@ -32,7 +46,7 @@ namespace ocl
             platform.getDevices(deviceType, &devices);
             if (!devices.empty())
             {
-                std::cout << "Using device: " << devices[0].getInfo<CL_DEVICE_NAME>() << "\n";
+                std::cout << "Using device (fallback): " << devices[0].getInfo<CL_DEVICE_NAME>() << "\n";
                 std::cout << "On platform: " << platform.getInfo<CL_PLATFORM_NAME>() << "\n";
                 return devices[0];
             }
