@@ -12,7 +12,8 @@ While many of his incredible simulations are showcased in videos or run in the b
 
 ## Key Features
 
-*   **GPU Acceleration:** The core simulation logic runs entirely on the GPU via an OpenCL kernel, enabling large grid sizes (1500x720) to be simulated at high, interactive frame rates.
+*   **GPU Acceleration:** The core simulation logic runs entirely on the GPU via an OpenCL kernel. State is kept on the device across frames using a ping-pong buffer scheme, avoiding per-frame host transfers. On an **RTX 4060 Laptop GPU**, the simulation runs at **500+ fps at 1500×720**.
+*   **Automatic GPU Selection:** On hybrid-graphics laptops, the application automatically selects the dedicated GPU (NVIDIA) over the integrated one, falling back to any available OpenCL GPU device if none is found.
 *   **Interactive GUI:** Built with **Dear ImGui**, the interface is a control panel for reality, allowing real-time modification of all simulation parameters:
     *   A live editor for the convolution kernel with forced symmetry options.
     *   A color picker to change the aesthetic of the "living" cells.
@@ -41,15 +42,22 @@ This project uses CMake and vcpkg for a straightforward and reproducible build p
 
 2.  **Install dependencies using vcpkg:**
     `vcpkg` will automatically read the `vcpkg.json` manifest file and install the correct versions of SFML, ImGui, and OpenCL.
-    ```bash
-    # (Ensure vcpkg is installed and integrated with Visual Studio)
-    # Visual Studio will handle this automatically when opening the project as a CMake folder.
-    ```
 
-3.  **Compile with CMake and Visual Studio:**
-    *   Open the project folder in Visual Studio (`File > Open > Folder...`).
-    *   Visual Studio will detect the `CMakeLists.txt` file and configure the project.
-    *   Select the `CCA_Executable` as the startup target and build.
+### Windows (Visual Studio)
+
+*   Open the project folder in Visual Studio (`File > Open > Folder...`).
+*   Visual Studio will detect the `CMakeLists.txt` file and configure the project automatically using the vcpkg manifest.
+*   Select the `CCA_Executable` as the startup target and build.
+
+### Linux
+
+Make sure you have an OpenCL runtime/ICD for your GPU installed, then build with the vcpkg toolchain:
+
+```bash
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=[path-to-vcpkg]/scripts/buildsystems/vcpkg.cmake
+cmake --build build --config Release
+./build/CCA_Executable
+```
 
 ## Future Work
 
